@@ -1,4 +1,5 @@
 box: wercker/python
+build:
   steps:
     - pip install nose
     - nosetests
