@@ -38,10 +38,10 @@ def calculate_m(phi, ellipsoid_used, projection_used):
     return m
 
 
-national_grid = projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
-
-airy_1830 = ellipsoid(6377563.396, 6356256.910, "OSGB36 National Grid")
-GRS80 = ellipsoid(6378137.0, 6356752.31425, "ETRS89 (WGS84)")
+#national_grid = projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
+#
+#airy_1830 = ellipsoid(6377563.396, 6356256.910, "OSGB36 National Grid")
+#GRS80 = ellipsoid(6378137.0, 6356752.31425, "ETRS89 (WGS84)")
 
 
 def lat_long_to_east_north(phi, lam, ellipsoid_used, projection_used):
@@ -141,18 +141,19 @@ def east_north_to_lat_long(E, N, ellipsoid_used, projection_used):
 
     return math.degrees(phi), math.degrees(lam)
 
-# temporary eastings and northing for testing
-
-latitude = 52.658007833
-longitude = 1.716073973
-
-eastings, northings = lat_long_to_east_north(math.radians(latitude), math.radians(longitude), GRS80, national_grid)
-
-print('\n', eastings, northings)
-
-eastings = 651409.903
-northings = 313177.270
-
-latitude, longitude = east_north_to_lat_long(eastings, northings, GRS80, national_grid)
-
-print('\n', latitude, longitude)
+#
+#temporary eastings and northing for testing
+#
+#latitude = 52.658007833
+#longitude = 1.716073973
+#
+#eastings, northings = lat_long_to_east_north(math.radians(latitude), math.radians(longitude), GRS80, national_grid)
+#
+#print('\n', eastings, northings)
+#
+#eastings = 651409.903
+#northings = 313177.270
+#
+#latitude, longitude = east_north_to_lat_long(eastings, northings, GRS80, national_grid)
+#
+#print('\n', latitude, longitude)
