@@ -138,7 +138,7 @@ def east_north_to_lat_long(E, N, ellipsoid_used, projection_used):
     lam = projection_used.lambda_0 + x * (E - projection_used.E_0) - xi * (E - projection_used.E_0) ** 3 + xii * (
                                                                                                                  E - projection_used.E_0) ** 5 - xiia * (
                                                                                                                                                         E - projection_used.E_0) ** 7
-
+    print(math.degrees(phi), 9)
     return math.degrees(phi), math.degrees(lam)
 
 #

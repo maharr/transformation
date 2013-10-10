@@ -1,13 +1,12 @@
 import math
 import csv
-from decimal import Decimal
 import sys
-import ll_en_converter
+from transformation.ll_en_converter import projection_constant, ellipsoid, lat_long_to_east_north, east_north_to_lat_long
 
-national_grid = ll_en_converter.projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
+national_grid = projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
 
-airy_1830 = ll_en_converter.ellipsoid(6377563.396, 6356256.910, "OSGB36 National Grid")
-GRS80 = ll_en_converter.ellipsoid(6378137.0, 6356752.31425, "ETRS89 (WGS84)")
+airy_1830 = ellipsoid(6377563.396, 6356256.910, "OSGB36 National Grid")
+GRS80 = ellipsoid(6378137.0, 6356752.31425, "ETRS89 (WGS84)")
 
 # x, y = 651307.003, 313255.686
 
@@ -58,7 +57,9 @@ def lookup_shifts(x, y):
     corner.append(shifts(east_index + 1, north_index + 1))
     corner.append(shifts(east_index, north_index + 1))
 
-    with open('OSTN02_OSGM02_GB.csv') as fin:
+    # temporary import path used until better solution can be found
+
+    with open('/home/matt/Projects/transformation/transformation/OSTN02_OSGM02_GB.csv') as fin:
         csvin = csv.reader(fin)
         lookup = {row[0]: row for row in csvin}
 
@@ -98,14 +99,14 @@ if len(sys.argv) > 1:
     arguments = sys.argv
     if arguments[1] == 'OSGB36':
         e, n = OSGB36_to_ETRS89(float(arguments[2]), float(arguments[3]))
-        x, y = ll_en_converter.east_north_to_lat_long(e, n, GRS80, national_grid)
-        print(e, n)
+        x, y = east_north_to_lat_long(e, n, GRS80, national_grid)
+        print(x, y)
 
 
     elif arguments[1] == 'ETRS89':
         if arguments[2] == 'DD':
-            x, y = ll_en_converter.lat_long_to_east_north(math.radians(float(arguments[3])),
-                                                          math.radians(float(arguments[4])), GRS80, national_grid)
+            x, y = lat_long_to_east_north(math.radians(float(arguments[3])),
+                                          math.radians(float(arguments[4])), GRS80, national_grid)
             e, n = ETRS89_to_OSGB36(x, y)
             print(e, n)
 
