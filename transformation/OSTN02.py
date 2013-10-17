@@ -1,6 +1,7 @@
 import math
 import csv
 import sys
+import sqlite3
 from transformation.ll_en_converter import projection_constant, ellipsoid, lat_long_to_east_north, east_north_to_lat_long
 
 national_grid = projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
@@ -9,7 +10,6 @@ airy_1830 = ellipsoid(6377563.396, 6356256.910, "OSGB36 National Grid")
 GRS80 = ellipsoid(6378137.0, 6356752.31425, "ETRS89 (WGS84)")
 
 # x, y = 651307.003, 313255.686
-
 
 class shifts(object):
     eshift = None
@@ -59,17 +59,20 @@ def lookup_shifts(x, y):
 
     # temporary import path used until better solution can be found
 
-    with open('/home/matt/Projects/transformation/transformation/OSTN02_OSGM02_GB.csv') as fin:
-        csvin = csv.reader(fin)
-        lookup = {row[0]: row for row in csvin}
+    conn = sqlite3.connect('/home/matt/Projects/transformation/transformation/OSTN02_OSGM02.db')
+    c = conn.cursor()
 
     for i in range(0, 4):
-        j = lookup[str(corner[i].record)][3]
-        corner[i].eshift = float(j.strip(' '))
-        k = lookup[str(corner[i].record)][4]
-        corner[i].nshift = float(k.strip(' '))
-        l = lookup[str(corner[i].record)][5]
-        corner[i].gshift = float(l.strip(' '))
+        c.execute("SELECT * FROM lookup WHERE record=:record", {"record": corner[i].record})
+        row = c.fetchone()
+        #j = lookup[str(corner[i].record)][3]
+        corner[i].eshift = row[3]
+        corner[i].nshift = row[4]
+        corner[i].gshift = row[5]
+        #k = lookup[str(corner[i].record)][4]
+        #corner[i].nshift = float(k.strip(' '))
+        #l = lookup[str(corner[i].record)][5]
+        #corner[i].gshift = float(l.strip(' '))
         print(corner[i].eshift, corner[i].nshift, corner[i].gshift)
 
     x0 = east_index * 1000.
