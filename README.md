@@ -1,4 +1,4 @@
 transformation
 ==============
 
-Python Script to perform OSTN02 and OSGM02
+Python Script to perform OSTN02 and OSGM02.
