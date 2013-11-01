@@ -2,7 +2,7 @@ import math
 import csv
 import sys
 import sqlite3
-from transformation.ll_en_converter import projection_constant, ellipsoid, lat_long_to_east_north, east_north_to_lat_long
+from transformation.transformation.ll_en_converter import projection_constant, ellipsoid, lat_long_to_east_north, east_north_to_lat_long
 
 national_grid = projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
 
@@ -97,6 +97,10 @@ def lookup_shifts(x, y):
 
     return se, sn
 
+def webgui_convert(inpute, inputn):
+    e, n = OSGB36_to_ETRS89(inpute, inputn)
+    x, y = east_north_to_lat_long(e, n, GRS80, national_grid)
+    return x, y
 
 if len(sys.argv) > 1:
     arguments = sys.argv
