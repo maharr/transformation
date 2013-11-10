@@ -58,8 +58,8 @@ def lookup_shifts(x, y):
     corner.append(shifts(east_index, north_index + 1))
 
     # temporary import path used until better solution can be found
-
-    conn = sqlite3.connect('/home/matt/Projects/transformation/transformation/OSTN02_OSGM02.db')
+    location =  os.path.join((os.path.dirname(__file__)), 'OSTN02_OSGM02.db')
+    conn = sqlite3.connect(location)
     c = conn.cursor()
 
     for i in range(0, 4):
