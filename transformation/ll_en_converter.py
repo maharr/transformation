@@ -133,12 +133,11 @@ def east_north_to_lat_long(E, N, ellipsoid_used, projection_used):
     61 + (662 * (math.tan(phi_dash) ** 2)) + (1320 * (math.tan(phi_dash) ** 4)) + (720 * (math.tan(phi_dash) ** 6)))
     print('xiia: ', xiia)
 
-    phi = phi_dash - vii * (E - projection_used.E_0) ** 2 + viii * (E - projection_used.E_0) ** 4 - ix * (
-                                                                                                         E - projection_used.E_0) ** 6
+    phi = phi_dash - vii * (E - projection_used.E_0) ** 2 + viii * (E - projection_used.E_0) ** 4 - ix * (E - projection_used.E_0) ** 6
     lam = projection_used.lambda_0 + x * (E - projection_used.E_0) - xi * (E - projection_used.E_0) ** 3 + xii * (
                                                                                                                  E - projection_used.E_0) ** 5 - xiia * (
                                                                                                                                                         E - projection_used.E_0) ** 7
-    print(math.degrees(phi), 9)
+    print(math.degrees(phi), math.degrees(lam))
     return math.degrees(phi), math.degrees(lam)
 
 #
