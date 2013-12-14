@@ -22,7 +22,7 @@ class shifts(object):
         self.e = e
         self.n = n
         self.record = (e + (n * 701) + 1)
-        print(self.record)
+        #print(self.record)
 
 
 def geodetic_to_ECEF(lat, long, height):
@@ -31,7 +31,7 @@ def geodetic_to_ECEF(lat, long, height):
     x = ECEF_x * math.cos(lat) * math.cos(long)
     y = ECEF_x * math.cos(lat) * math.sin(long)
     z = (((GRS80.a * (1 - GRS80.e_sq)) / x_1) + height ) * math.sin(lat)
-    print(x, y, z)
+    #print(x, y, z)
     return x, y, z
 
 
@@ -46,7 +46,7 @@ def ECEF_to_geodetic(x, y, z):
         v = GRS80.a / (math.sqrt(1 - (GRS80.e_sq * (math.sin(lat1) ** 2))))
         lat2 = math.atan((z + (GRS80.e_sq * v * math.sin(lat1))) / rootXYSq)
     lat = math.degrees(lat2)
-    print(lat)
+    #print(lat)
     if x >= 0:
         long = math.degrees(math.atan(y / x))
     elif x < 0 and y >= 0: # longitude is in the W90 thru 0 to E90 hemisphere
@@ -55,7 +55,7 @@ def ECEF_to_geodetic(x, y, z):
         long = math.degrees(math.atan(y / x)) - 180 # longitude is in the E180 to W90 quadrant
     v = GRS80.a / (math.sqrt(1 - (GRS80.e_sq * (math.sin(lat2) ** 2))))
     height = (rootXYSq / math.cos(lat2)) - v
-    print(lat)
+    #print(lat)
     return lat, long, height
 
 
@@ -66,17 +66,26 @@ def transform(b, t, d, r):
 
 
 def ETRS89_to_WGS84(x, y, z):
+    #etrs89 -> itrf90
     b = numpy.matrix([x, y, z])
     t = numpy.matrix([0.005, 0.024, -0.038])
     d = 0.0000000034
     r = numpy.matrix([0, 0, 0])
-    a = transform(b, t, d, r)
+    a = transform(b, t, d,r)
+    # itrf90 -> WGS84 (Doppler)
     b = a
     t = numpy.matrix([0.06, -0.517, -0.223])
     d = -0.000000011
-    r = numpy.matrix([0.0183, -0.0003, 0.0070]) / 3600
+    r = numpy.matrix([math.radians(0.0183), math.radians(-0.0003), math.radians(0.0070)]) / 3600
+    #a = transform(b, t, d, r)
+    #itrf90 -> ITRF2008
+    b = a
+    t = numpy.matrix([0.03, 0.039, -0.097])
+    d = 0.0000000063
+    r = numpy.matrix([0.0, 0.0, 0.0]) / 3600
     a = transform(b, t, d, r)
-    print(a)
+
+    #print(a)
     return a
 
 
@@ -90,14 +99,14 @@ def OSGB36_to_ETRS89(x0, y0, h0):
     y1 = y0
     x2 = y2 = 0
     while x1 != x2:
-        print('loop')
+        #print('loop')
         sx, sy, sg = lookup_shifts(x1, y1)
-        print(sx, sy)
+        #print(sx, sy)
         x2 = x1
         y2 = y1
         x1 = x0 - sx
         y1 = y0 - sy
-        print(x0, x1, x2, y0, y1, y2)
+       #print(x0, x1, x2, y0, y1, y2)
     h2 = h0 + sg
     return x1, y1, h2
 
@@ -106,7 +115,7 @@ def lookup_shifts(x, y):
     east_index = math.floor((x / 1000))
     north_index = math.floor(y / 1000)
 
-    print(east_index, north_index)
+    #print(east_index, north_index)
 
     # corners are labeled from the bottom left corner anti-clockwise
     corner = list()
@@ -131,7 +140,7 @@ def lookup_shifts(x, y):
         #corner[i].nshift = float(k.strip(' '))
         #l = lookup[str(corner[i].record)][5]
         #corner[i].gshift = float(l.strip(' '))
-        print(corner[i].eshift, corner[i].nshift, corner[i].gshift)
+        #print(corner[i].eshift, corner[i].nshift, corner[i].gshift)
 
     x0 = east_index * 1000.
     y0 = north_index * 1000.
@@ -142,7 +151,7 @@ def lookup_shifts(x, y):
     t = round(dx / 1000, 8)
     u = round(dy / 1000, 8)
 
-    print(t, u)
+    #print(t, u)
 
     se = ((1 - t) * (1 - u) * corner[0].eshift) + (t * (1 - u) * corner[1].eshift) + (t * u * corner[2].eshift) + (
         (1 - t) * u * corner[3].eshift)
@@ -151,7 +160,7 @@ def lookup_shifts(x, y):
     sg = ((1 - t) * (1 - u) * corner[0].gshift) + (t * (1 - u) * corner[1].gshift) + (t * u * corner[2].gshift) + (
         (1 - t) * u * corner[3].gshift)
 
-    print(se, sn, sg)
+    #print(se, sn, sg)
 
     return se, sn, sg
 
@@ -163,6 +172,8 @@ def webgui_convert(inpute, inputn, inputh, convert):
         x, y, z = geodetic_to_ECEF(math.radians(x), math.radians(y), h)
         a = ETRS89_to_WGS84(x, y, z)
         x, y, z = ECEF_to_geodetic(a[0, 0], a[0, 1], a[0, 2])
+    else:
+        z = h
     return x, y, z
 
 
