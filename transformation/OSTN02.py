@@ -1,10 +1,12 @@
 import math
-import csv
 import sys
 import sqlite3
 import os
-from ll_en_converter import projection_constant, ellipsoid, lat_long_to_east_north, east_north_to_lat_long
+
 import numpy
+
+from ll_en_converter import projection_constant, ellipsoid, lat_long_to_east_north, east_north_to_lat_long
+
 
 national_grid = projection_constant(0.9996012717, math.radians(49), math.radians(-2), 400000, -100000)
 
@@ -49,10 +51,10 @@ def ECEF_to_geodetic(x, y, z):
     #print(lat)
     if x >= 0:
         long = math.degrees(math.atan(y / x))
-    elif x < 0 and y >= 0: # longitude is in the W90 thru 0 to E90 hemisphere
+    elif x < 0 and y >= 0:  # longitude is in the W90 thru 0 to E90 hemisphere
         long = math.degrees(math.atan(y / x)) + 180
-    elif x < 0 and y < 0: # longitude is in the E90 to E180 quadrant
-        long = math.degrees(math.atan(y / x)) - 180 # longitude is in the E180 to W90 quadrant
+    elif x < 0 and y < 0:  # longitude is in the E90 to E180 quadrant
+        long = math.degrees(math.atan(y / x)) - 180  # longitude is in the E180 to W90 quadrant
     v = GRS80.a / (math.sqrt(1 - (GRS80.e_sq * (math.sin(lat2) ** 2))))
     height = (rootXYSq / math.cos(lat2)) - v
     #print(lat)
@@ -71,7 +73,7 @@ def ETRS89_to_WGS84(x, y, z):
     t = numpy.matrix([0.005, 0.024, -0.038])
     d = 0.0000000034
     r = numpy.matrix([0, 0, 0])
-    a = transform(b, t, d,r)
+    a = transform(b, t, d, r)
     # itrf90 -> WGS84 (Doppler)
     b = a
     t = numpy.matrix([0.06, -0.517, -0.223])
@@ -89,9 +91,9 @@ def ETRS89_to_WGS84(x, y, z):
     return a
 
 
-def ETRS89_to_OSGB36(x0, y0):
-    sx, sy = lookup_shifts(x0, y0)
-    return x0 + sx, y0 + sy
+def ETRS89_to_OSGB36(x0, y0, h0):
+    sx, sy, sg = lookup_shifts(x0, y0)
+    return x0 + sx, y0 + sy, h0 - sg
 
 
 def OSGB36_to_ETRS89(x0, y0, h0):
@@ -106,7 +108,7 @@ def OSGB36_to_ETRS89(x0, y0, h0):
         y2 = y1
         x1 = x0 - sx
         y1 = y0 - sy
-       #print(x0, x1, x2, y0, y1, y2)
+        #print(x0, x1, x2, y0, y1, y2)
     h2 = h0 + sg
     return x1, y1, h2
 
@@ -175,6 +177,12 @@ def webgui_convert(inpute, inputn, inputh, convert):
     else:
         z = h
     return x, y, z
+
+
+def webgui_reverse(inputlat, inputlng, inputh):
+    x, y = lat_long_to_east_north(math.radians(inputlat), math.radians(inputlng), GRS80, national_grid)
+    e, n, h = ETRS89_to_OSGB36(x, y, inputh)
+    return e, n, h
 
 
 if len(sys.argv) > 1:
